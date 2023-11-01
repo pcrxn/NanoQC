@@ -108,7 +108,7 @@ workflow NANOQC {
     ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(NANOPLOT.out.txt.collect{it[1]}.ifEmpty([]))
-    // Add process outputs for MultiQC input here
+    // TODO: Add process outputs for MultiQC input here
 
     MULTIQC (
         ch_multiqc_files.collect(),

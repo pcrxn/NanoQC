@@ -49,6 +49,7 @@ include { INPUT_CHECK } from '../subworkflows/local/input_check'
 include { FASTQC                      } from '../modules/nf-core/fastqc/main'
 include { MULTIQC                     } from '../modules/nf-core/multiqc/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
+include { NANOPLOT                    } from '../modules/nf-core/nanoplot/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -75,7 +76,7 @@ workflow NANOQC {
     // ! There is currently no tooling to help you write a sample sheet schema
 
     //
-    // MODULE: Run FastQC
+    // MODULE: FastQC
     //
     FASTQC (
         INPUT_CHECK.out.reads
@@ -85,6 +86,12 @@ workflow NANOQC {
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )
+
+    //
+    // MODULE: NanoPlot
+    //
+    NANOPLOT(INPUT_CHECK.out.reads)
+    ch_versions = ch_versions.mix(NANOPLOT.out.versions)
 
     //
     // MODULE: MultiQC
@@ -100,6 +107,8 @@ workflow NANOQC {
     ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
+    ch_multiqc_files = ch_multiqc_files.mix(NANOPLOT.out.txt.collect{it[1]}.ifEmpty([]))
+    // Add process outputs for MultiQC input here
 
     MULTIQC (
         ch_multiqc_files.collect(),
@@ -108,6 +117,7 @@ workflow NANOQC {
         ch_multiqc_logo.toList()
     )
     multiqc_report = MULTIQC.out.report.toList()
+
 }
 
 /*

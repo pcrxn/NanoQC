@@ -18,6 +18,10 @@
 
   > Ewels P, Magnusson M, Lundin S, Käller M. MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics. 2016 Oct 1;32(19):3047-8. doi: 10.1093/bioinformatics/btw354. Epub 2016 Jun 16. PubMed PMID: 27312411; PubMed Central PMCID: PMC5039924.
 
+- [NanoPlot](https://academic.oup.com/bioinformatics/article/39/5/btad311/7160911/)
+
+  > De Coster W, Rademakers R. NanoPack2: population-scale evaluation of long-read sequencing data, Bioinformatics. 2023 May 12;39(5):btad311. doi: 10.1093/bioinformatics/btad311.
+
 ## Software packaging/containerisation tools
 
 - [Anaconda](https://anaconda.com)

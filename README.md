@@ -1,27 +1,17 @@
 ## Introduction
 
-**pcrxn/nanoqc** is a bioinformatics pipeline that ...
+**NanoQC** is a bioinformatics pipeline that performs quality control of basecalled Nanopore sequence data in `.fastq.gz` format.
 
-<!-- TODO nf-core:
-   Complete this sentence with a 2-3 sentence summary of what types of data the pipeline ingests, a brief overview of the
-   major pipeline sections and the types of output it produces. You're giving an overview to someone new
-   to nf-core here, in 15-20 seconds. For an example, see https://github.com/nf-core/rnaseq/blob/master/README.md#introduction
--->
-
-<!-- TODO nf-core: Include a figure that guides the user through the major workflow steps. Many nf-core
-     workflows use the "tube map" design for that. See https://nf-co.re/docs/contributing/design_guidelines#examples for examples.   -->
-<!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->
-
-1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
-2. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
+1. Perform read QC with [`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).
+2. Perform read QC with [`NanoPlot`](https://github.com/wdecoster/NanoPlot).
+3. Collect QC reports with [`MultiQC`](http://multiqc.info/).
 
 ## Usage
 
-:::note
 If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how
 to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline)
 with `-profile test` before running the workflow on actual data.
-:::
+
 
 <!-- TODO nf-core: Describe the minimum required steps to execute the pipeline, e.g. how to prepare samplesheets.
      Explain what rows and columns represent. For instance (please edit as appropriate):
@@ -50,21 +40,11 @@ nextflow run pcrxn/nanoqc \
    --outdir <OUTDIR>
 ```
 
-:::warning
 Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those
 provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_;
 see [docs](https://nf-co.re/usage/configuration#custom-configuration-files).
-:::
 
-## Credits
-
-pcrxn/nanoqc was originally written by Liam Brown.
-
-We thank the following people for their extensive assistance in the development of this pipeline:
-
-<!-- TODO nf-core: If applicable, make list of people who have also contributed -->
-
-## Contributions and Support
+## Contributions and support
 
 If you would like to contribute to this pipeline, please see the [contributing guidelines](.github/CONTRIBUTING.md).
 
@@ -77,10 +57,20 @@ If you would like to contribute to this pipeline, please see the [contributing g
 
 An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
 
-This pipeline uses code and infrastructure developed and maintained by the [nf-core](https://nf-co.re) community, reused here under the [MIT license](https://github.com/nf-core/tools/blob/master/LICENSE).
+This pipeline uses code and infrastructure developed and maintained by the [nf-core](https://nf-co.re) initative, and reused here under the [MIT license](https://github.com/nf-core/tools/blob/master/LICENSE).
+ 
+   > Ewels PA, Peltzer A, Fillinger S, Patel H, Alneberg J, Wilm A, Garcia MU, Di Tommaso P, Nahnsen S. The nf-core framework for community-curated bioinformatics pipelines. Nat Biotechnol. 2020 Mar;38(3):276-278. doi: 10.1038/s41587-020-0439-x. PubMed PMID: 32055031.
+ 
+In addition, references of tools and data used in this pipeline are as follows:
 
-> **The nf-core framework for community-curated bioinformatics pipelines.**
->
-> Philip Ewels, Alexander Peltzer, Sven Fillinger, Harshil Patel, Johannes Alneberg, Andreas Wilm, Maxime Ulysse Garcia, Paolo Di Tommaso & Sven Nahnsen.
->
-> _Nat Biotechnol._ 2020 Feb 13. doi: [10.1038/s41587-020-0439-x](https://dx.doi.org/10.1038/s41587-020-0439-x).
+- [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
+
+  > Andrews S. (2010). FastQC: A Quality Control Tool for High Throughput Sequence Data [Online].
+
+- [MultiQC](https://pubmed.ncbi.nlm.nih.gov/27312411/)
+
+  > Ewels P, Magnusson M, Lundin S, Käller M. MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics. 2016 Oct 1;32(19):3047-8. doi: 10.1093/bioinformatics/btw354. Epub 2016 Jun 16. PubMed PMID: 27312411; PubMed Central PMCID: PMC5039924.
+
+- [NanoPlot](https://academic.oup.com/bioinformatics/article/39/5/btad311/7160911/)
+
+  > De Coster W, Rademakers R. NanoPack2: population-scale evaluation of long-read sequencing data, Bioinformatics. 2023 May 12;39(5):btad311. doi: 10.1093/bioinformatics/btad311.

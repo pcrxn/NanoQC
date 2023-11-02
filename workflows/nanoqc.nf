@@ -35,7 +35,7 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
-include { INPUT_CHECK } from '../subworkflows/local/input_check'
+include { PARSE_INPUT } from '../subworkflows/local/parse_input'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -64,27 +64,38 @@ workflow NANOQC {
 
     ch_versions = Channel.empty()
 
-    // Argument is the name of the parameter which specifies the samplesheet, i.e. params.input = 'input'
-    // [[id:ERR9958133], https://raw.githubusercontent.com/nf-core/test-datasets/scnanoseq/fastq/sub_ERR9958133.fastq.gz]
-    // [[id:ERR9958134], https://raw.githubusercontent.com/nf-core/test-datasets/scnanoseq/fastq/sub_ERR9958134.fastq.gz]
-    ch_input = Channel.fromSamplesheet('input')
+    if (params.input) {
+        // Argument is the name of the parameter which specifies the samplesheet, i.e. params.input = 'input'
+        // [[id:ERR9958133], https://raw.githubusercontent.com/nf-core/test-datasets/scnanoseq/fastq/sub_ERR9958133.fastq.gz]
+        // [[id:ERR9958134], https://raw.githubusercontent.com/nf-core/test-datasets/scnanoseq/fastq/sub_ERR9958134.fastq.gz]
+        ch_input = Channel.fromSamplesheet('input')
+    } else if (params.input_folder) {
+        PARSE_INPUT(params.input_folder, params.extension)
+        ch_input = PARSE_INPUT.out.reads
+    } else {
+        error("One of `--input` or `--input_folder` must be provided!")
+    }
 
     //
     // MODULE: FastQC
     //
-    FASTQC (ch_input)
-    
+    FASTQC (ch_input)   
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
-
-    CUSTOM_DUMPSOFTWAREVERSIONS (
-        ch_versions.unique().collectFile(name: 'collated_versions.yml')
-    )
 
     //
     // MODULE: NanoPlot
     //
     NANOPLOT(ch_input)
-    ch_versions = ch_versions.mix(NANOPLOT.out.versions)
+    ch_versions = ch_versions.mix(NANOPLOT.out.versions.first())
+
+    //
+    // MODULE: CUSTOM_DUMPSOFTWAREVERSIONS
+    //
+    CUSTOM_DUMPSOFTWAREVERSIONS (
+        ch_versions.unique().collectFile(name: 'collated_versions.yml')
+    )
+
+    ch_versions.unique().collectFile(name: 'collated_versions.yml').view()
 
     //
     // MODULE: MultiQC

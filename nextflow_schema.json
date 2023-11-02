@@ -10,7 +10,7 @@
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "description": "Define where the pipeline should find input data and save output data.",
-            "required": ["input", "outdir"],
+            "required": ["outdir"],
             "properties": {
                 "input": {
                     "type": "string",
@@ -22,6 +22,20 @@
                     "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row.",
                     "fa_icon": "fas fa-file-csv",
                     "schema": "assets/schema_input.json"
+                },
+                "input_folder": {
+                    "type": "string",
+                    "fa_icon": "fas fa-dna",
+                    "mimetype": "text/tsv",
+                    "description": "Path to folder containing zipped FASTQ files.",
+                    "help_text": "Path to folder containing compressed fastq files.\n\nExample for input data organization with two samples:\n\n```bash\ndata\n  \u251c\u2500ERR9958133_L001.fastq.gz\n  \u251c\u2500ERR9958134_L001.fastq.gz\n```\n\nPlease note the following requirements:\n\n1. The path must be enclosed in quotes\n2. The folder must contain gzip compressed demultiplexed FASTQ files. If the file names do not follow the default (`\"/*.fastq.gz\"`), please check `--extension`.\n3. Sample identifiers are extracted from file names, i.e. the string before the first period `.`, these must be unique.\n4. If your data is scattered, produce a sample sheet."
+                },
+                "extension": {
+                    "type": "string",
+                    "default": "/*.fastq.gz",
+                    "fa_icon": "fas fa-font",
+                    "description": "Naming of sequencing files.",
+                    "help_text": "Indicates the naming of sequencing files (default: `\"/*.fastq.gz\"`).\n\nPlease note:\n\n1. The prepended slash (`/`) is required.\n2. The star (`*`) is the required wildcard for sample names.\n3. The pattern must be enclosed in quotes."
                 },
                 "outdir": {
                     "type": "string",

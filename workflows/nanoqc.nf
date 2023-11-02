@@ -4,7 +4,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { paramsSummaryLog; paramsSummaryMap } from 'plugin/nf-validation'
+include { fromSamplesheet; paramsSummaryLog; paramsSummaryMap } from 'plugin/nf-validation'
 
 def logo = NfcoreTemplate.logo(workflow, params.monochrome_logs)
 def citation = '\n' + WorkflowMain.citation(workflow) + '\n'
@@ -64,23 +64,16 @@ workflow NANOQC {
 
     ch_versions = Channel.empty()
 
-    //
-    // SUBWORKFLOW: Read in samplesheet, validate and stage input files
-    //
-    INPUT_CHECK (
-        file(params.input)
-    )
-    ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
-    // TODO: OPTIONAL, you can use nf-validation plugin to create an input channel from the samplesheet with Channel.fromSamplesheet("input")
-    // See the documentation https://nextflow-io.github.io/nf-validation/samplesheets/fromSamplesheet/
-    // ! There is currently no tooling to help you write a sample sheet schema
+    // Argument is the name of the parameter which specifies the samplesheet, i.e. params.input = 'input'
+    // [[id:ERR9958133], https://raw.githubusercontent.com/nf-core/test-datasets/scnanoseq/fastq/sub_ERR9958133.fastq.gz]
+    // [[id:ERR9958134], https://raw.githubusercontent.com/nf-core/test-datasets/scnanoseq/fastq/sub_ERR9958134.fastq.gz]
+    ch_input = Channel.fromSamplesheet('input')
 
     //
     // MODULE: FastQC
     //
-    FASTQC (
-        INPUT_CHECK.out.reads
-    )
+    FASTQC (ch_input)
+    
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
@@ -90,7 +83,7 @@ workflow NANOQC {
     //
     // MODULE: NanoPlot
     //
-    NANOPLOT(INPUT_CHECK.out.reads)
+    NANOPLOT(ch_input)
     ch_versions = ch_versions.mix(NANOPLOT.out.versions)
 
     //

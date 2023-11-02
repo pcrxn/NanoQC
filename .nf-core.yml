@@ -2,6 +2,9 @@ lint:
   files_exist:
     - CODE_OF_CONDUCT.md
     - assets/nf-core-nanoqc_logo_light.png
+    - docs/output.md
+    - docs/README.md
+    - docs/usage.md
     - docs/images/nf-core-nanoqc_logo_light.png
     - docs/images/nf-core-nanoqc_logo_dark.png
     - .github/ISSUE_TEMPLATE/config.yml

@@ -4,7 +4,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { paramsSummaryLog; paramsSummaryMap } from 'plugin/nf-validation'
+include { fromSamplesheet; paramsSummaryLog; paramsSummaryMap } from 'plugin/nf-validation'
 
 def logo = NfcoreTemplate.logo(workflow, params.monochrome_logs)
 def citation = '\n' + WorkflowMain.citation(workflow) + '\n'
@@ -35,7 +35,7 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
-include { INPUT_CHECK } from '../subworkflows/local/input_check'
+include { PARSE_INPUT } from '../subworkflows/local/parse_input'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -64,34 +64,38 @@ workflow NANOQC {
 
     ch_versions = Channel.empty()
 
-    //
-    // SUBWORKFLOW: Read in samplesheet, validate and stage input files
-    //
-    INPUT_CHECK (
-        file(params.input)
-    )
-    ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
-    // TODO: OPTIONAL, you can use nf-validation plugin to create an input channel from the samplesheet with Channel.fromSamplesheet("input")
-    // See the documentation https://nextflow-io.github.io/nf-validation/samplesheets/fromSamplesheet/
-    // ! There is currently no tooling to help you write a sample sheet schema
+    if (params.input) {
+        // Argument is the name of the parameter which specifies the samplesheet, i.e. params.input = 'input'
+        // [[id:ERR9958133], https://raw.githubusercontent.com/nf-core/test-datasets/scnanoseq/fastq/sub_ERR9958133.fastq.gz]
+        // [[id:ERR9958134], https://raw.githubusercontent.com/nf-core/test-datasets/scnanoseq/fastq/sub_ERR9958134.fastq.gz]
+        ch_input = Channel.fromSamplesheet('input')
+    } else if (params.input_folder) {
+        PARSE_INPUT(params.input_folder, params.extension)
+        ch_input = PARSE_INPUT.out.reads
+    } else {
+        error("One of `--input` or `--input_folder` must be provided!")
+    }
 
     //
     // MODULE: FastQC
     //
-    FASTQC (
-        INPUT_CHECK.out.reads
-    )
+    FASTQC (ch_input)   
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
-
-    CUSTOM_DUMPSOFTWAREVERSIONS (
-        ch_versions.unique().collectFile(name: 'collated_versions.yml')
-    )
 
     //
     // MODULE: NanoPlot
     //
-    NANOPLOT(INPUT_CHECK.out.reads)
-    ch_versions = ch_versions.mix(NANOPLOT.out.versions)
+    NANOPLOT(ch_input)
+    ch_versions = ch_versions.mix(NANOPLOT.out.versions.first())
+
+    //
+    // MODULE: CUSTOM_DUMPSOFTWAREVERSIONS
+    //
+    CUSTOM_DUMPSOFTWAREVERSIONS (
+        ch_versions.unique().collectFile(name: 'collated_versions.yml')
+    )
+
+    ch_versions.unique().collectFile(name: 'collated_versions.yml').view()
 
     //
     // MODULE: MultiQC

@@ -50,6 +50,7 @@ include { FASTQC                      } from '../modules/nf-core/fastqc/main'
 include { MULTIQC                     } from '../modules/nf-core/multiqc/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 include { NANOPLOT                    } from '../modules/nf-core/nanoplot/main'
+include { PORECHOP_ABI                } from '../modules/nf-core/porechop/abi/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -79,7 +80,7 @@ workflow NANOQC {
     //
     // MODULE: FastQC
     //
-    FASTQC (ch_input)   
+    FASTQC(ch_input)   
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
     //
@@ -89,12 +90,19 @@ workflow NANOQC {
     ch_versions = ch_versions.mix(NANOPLOT.out.versions.first())
 
     //
+    // MODULE: Porechop_ABI
+    //
+    if (!params.skip_porechop) {
+        PORECHOP_ABI(ch_input)
+        ch_versions = ch_versions.mix(PORECHOP_ABI.out.versions.first())
+    }
+ 
+    //
     // MODULE: CUSTOM_DUMPSOFTWAREVERSIONS
     //
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )
-
     ch_versions.unique().collectFile(name: 'collated_versions.yml').view()
 
     //
@@ -112,6 +120,9 @@ workflow NANOQC {
     ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(NANOPLOT.out.txt.collect{it[1]}.ifEmpty([]))
+    if (!params.skip_porechop) {
+        ch_multiqc_files = ch_multiqc_files.mix(PORECHOP_ABI.out.log.collect{it[1]}.ifEmpty([]))
+    }
     // TODO: Add process outputs for MultiQC input here
 
     MULTIQC (

@@ -1,6 +1,13 @@
-## Introduction
+# NanoQC
+
+[![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A522.10.1-23aa62.svg)](https://www.nextflow.io/)
+[![run with conda](http://img.shields.io/badge/run%20with-conda-3EB049?labelColor=000000&logo=anaconda)](https://docs.conda.io/en/latest/)
+[![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)
+[![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg?labelColor=000000)](https://sylabs.io/docs/)
 
 **NanoQC** is a bioinformatics pipeline that performs quality control of basecalled Nanopore sequence data in `.fastq.gz` format.
+
+## Overview
 
 1. Perform read QC with [`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).
 2. Perform read QC with [`NanoPlot`](https://github.com/wdecoster/NanoPlot).
@@ -12,25 +19,31 @@ If you are new to Nextflow and nf-core, please refer to [this page](https://nf-c
 to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline)
 with `-profile test` before running the workflow on actual data.
 
-<!-- TODO nf-core: Describe the minimum required steps to execute the pipeline, e.g. how to prepare samplesheets.
-     Explain what rows and columns represent. For instance (please edit as appropriate):
+Please provide pipeline parameters via the CLI or Nextflow `-params-file` option.
+Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_;
+see [docs](https://nf-co.re/usage/configuration#custom-configuration-files).
+
+NanoQC can be run using two different input types:
+
+- A **samplesheet**, including sample names and paths to Nanopore-basecalled gzipped FASTQ files, or
+- A **folder** containing Nanopore-basecalled gzipped FASTQ files.
+
+### Input type: Samplesheet
 
 First, prepare a samplesheet with your input data that looks as follows:
 
 `samplesheet.csv`:
 
 ```csv
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
+sample,fastq
+CONTROL_1,data/AEG588A1.fastq.gz
+CONTROL_2,data/AEG588A2.fastq.gz
+TREATMENT_1,data/AEG575A5.fastq.gz
 ```
 
-Each row represents a fastq file (single-end) or a pair of fastq files (paired end).
-
--->
+Each row represents a gzipped FASTQ file.
 
 Now, you can run the pipeline using:
-
-<!-- TODO nf-core: update the following command to include all required parameters for a minimal example -->
 
 ```bash
 nextflow run pcrxn/nanoqc \
@@ -39,20 +52,35 @@ nextflow run pcrxn/nanoqc \
    --outdir <OUTDIR>
 ```
 
-Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those
-provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_;
-see [docs](https://nf-co.re/usage/configuration#custom-configuration-files).
+### Input type: Folder
+
+Instead of a samplesheet, the user can instead provide a path to a directory containing gzipped FASTQ files.
+In this case, the sample name will be the name of the file up until the first period (`.`).
+
+For example, for a folder `data/` that looks as follows:
+
+```bash
+data
+├── ERR9958133.fastq.gz
+└── ERR9958134.fastq.gz
+```
+
+The pipeline can be run using:
+
+```bash
+nextflow run pcrxn/nanoqc \
+   -profile <docker/singularity/.../institute> \
+   --input_folder data/ \
+   --outdir <OUTDIR>
+```
+
+If the names of the gzipped FASTQ files do not end with `.fastq.gz`, an alternate extension can be specified using `--extension`.
 
 ## Contributions and support
 
 If you would like to contribute to this pipeline, please see the [contributing guidelines](.github/CONTRIBUTING.md).
 
 ## Citations
-
-<!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->
-<!-- If you use  pcrxn/nanoqc for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
-
-<!-- TODO nf-core: Add bibliography of tools and data used in your pipeline -->
 
 An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
 

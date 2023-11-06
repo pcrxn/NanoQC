@@ -11,7 +11,8 @@
 
 1. Perform read QC with [`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).
 2. Perform read QC with [`NanoPlot`](https://github.com/wdecoster/NanoPlot).
-3. Collect QC reports with [`MultiQC`](http://multiqc.info/).
+3. Remove adapters with [`Porechop_ABI`](https://github.com/bonsai-team/Porechop_ABI).
+4. Collect QC reports with [`MultiQC`](http://multiqc.info/).
 
 ## Usage
 
@@ -101,3 +102,7 @@ In addition, references of tools and data used in this pipeline are as follows:
 - [NanoPlot](https://academic.oup.com/bioinformatics/article/39/5/btad311/7160911/)
 
   > De Coster W, Rademakers R. NanoPack2: population-scale evaluation of long-read sequencing data, Bioinformatics. 2023 May 12;39(5):btad311. doi: 10.1093/bioinformatics/btad311.
+
+- [Porechop_ABI](https://academic.oup.com/bioinformaticsadvances/article/3/1/vbac085/6835406)
+
+  > Bonenfant Q, Noé L, Touzet H. Porechop_ABI: discovering unknown adapters in Oxford Nanopore Technology sequencing reads for downstream trimming, Bioinformatics Advances. 2022 Nov 21;3(1):vbac085. doi: 10.1093/bioadv/vbac085.

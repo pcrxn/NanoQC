@@ -28,14 +28,7 @@
                     "fa_icon": "fas fa-dna",
                     "mimetype": "text/tsv",
                     "description": "Path to folder containing zipped FASTQ files.",
-                    "help_text": "Path to folder containing compressed fastq files.\n\nExample for input data organization with two samples:\n\n```bash\ndata\n  \u251c\u2500ERR9958133_L001.fastq.gz\n  \u251c\u2500ERR9958134_L001.fastq.gz\n```\n\nPlease note the following requirements:\n\n1. The path must be enclosed in quotes\n2. The folder must contain gzip compressed demultiplexed FASTQ files. If the file names do not follow the default (`\"/*.fastq.gz\"`), please check `--extension`.\n3. Sample identifiers are extracted from file names, i.e. the string before the first period `.`, these must be unique.\n4. If your data is scattered, produce a sample sheet."
-                },
-                "extension": {
-                    "type": "string",
-                    "default": "/*.fastq.gz",
-                    "fa_icon": "fas fa-font",
-                    "description": "Naming of sequencing files.",
-                    "help_text": "Indicates the naming of sequencing files (default: `\"/*.fastq.gz\"`).\n\nPlease note:\n\n1. The prepended slash (`/`) is required.\n2. The star (`*`) is the required wildcard for sample names.\n3. The pattern must be enclosed in quotes."
+                    "help_text": "Path to folder containing compressed fastq files.\n\nExample for input data organization with two samples:\n\n```bash\ndata\n  ├─ERR9958133_L001.fastq.gz\n  ├─ERR9958134_L001.fastq.gz\n```\n\nPlease note the following requirements:\n\n1. The path must be enclosed in quotes\n2. The folder must contain gzip compressed demultiplexed FASTQ files. If the file names do not follow the default (`\"/*.fastq.gz\"`), please check `--extension`.\n3. Sample identifiers are extracted from file names, i.e. the string before the first period `.`, these must be unique.\n4. If your data is scattered, produce a sample sheet."
                 },
                 "outdir": {
                     "type": "string",
@@ -54,6 +47,28 @@
                     "type": "string",
                     "description": "MultiQC report title. Printed as page header, used for filename if not otherwise specified.",
                     "fa_icon": "fas fa-file-signature"
+                }
+            }
+        },
+        "new_group_1": {
+            "title": "Workflow execution options",
+            "type": "object",
+            "description": "Parameters to control execution options for the workflow",
+            "default": "",
+            "properties": {
+                "extension": {
+                    "type": "string",
+                    "default": "/*.fastq.gz",
+                    "fa_icon": "fas fa-font",
+                    "description": "Naming of sequencing files.",
+                    "help_text": "Indicates the naming of sequencing files (default: `\"/*.fastq.gz\"`).\n\nPlease note:\n\n1. The prepended slash (`/`) is required.\n2. The star (`*`) is the required wildcard for sample names.\n3. The pattern must be enclosed in quotes."
+                },
+                "skip_porechop": {
+                    "type": "boolean",
+                    "default": false,
+                    "fa_icon": "fas fa-forward",
+                    "description": "Skip adapter removal.",
+                    "help_text": "Skip adapter removal using Porechop."
                 }
             }
         },
@@ -255,6 +270,9 @@
     "allOf": [
         {
             "$ref": "#/definitions/input_output_options"
+        },
+        {
+            "$ref": "#/definitions/new_group_1"
         },
         {
             "$ref": "#/definitions/institutional_config_options"

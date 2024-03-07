@@ -11,8 +11,8 @@ process PORECHOP_ABI {
     tuple val(meta), path(reads)
 
     output:
-    tuple val(meta), path("*.fastq.gz"), emit: reads
-    tuple val(meta), path("*.log")     , emit: log
+    tuple val(meta), path("*_porechop.fastq.gz"), emit: reads
+    tuple val(meta), path("*_porechop.log")     , emit: log
     path "versions.yml"                , emit: versions
 
     when:

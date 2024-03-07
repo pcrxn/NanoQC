@@ -22,8 +22,15 @@ process PORECHOP_ABI {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
+    if [ "${reads}" = "${meta.id}.fastq.gz" ]; then
+        renamed_reads="${reads}"
+    else
+        cp -L $reads "${meta.id}.fastq.gz" && \
+        renamed_reads="${meta.id}.fastq.gz"
+    fi
+
     porechop_abi \\
-        --input $reads \\
+        --input \${renamed_reads} \\
         --threads $task.cpus \\
         $args \\
         --output ${prefix}.fastq.gz \\

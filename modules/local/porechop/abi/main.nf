@@ -33,8 +33,8 @@ process PORECHOP_ABI {
         --input \${renamed_reads} \\
         --threads $task.cpus \\
         $args \\
-        --output ${prefix}.fastq.gz \\
-        > ${prefix}.log
+        --output ${prefix}_porechop.fastq.gz \\
+        > ${prefix}_porechop.log
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         porechop_abi: \$( porechop_abi --version )

@@ -134,7 +134,6 @@ workflow NANOQC {
         NANOPLOT_RAW(ch_input)
         ch_versions = ch_versions.mix(NANOPLOT_RAW.out.versions.first())
     }
-    ch_versions = ch_versions.mix(NANOPLOT.out.versions.first())
 
     //
     // MODULE: CUSTOM_DUMPSOFTWAREVERSIONS

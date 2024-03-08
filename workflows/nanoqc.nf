@@ -47,11 +47,12 @@ include { PORECHOP_ABI                } from '../modules/local/porechop/abi/main
 //
 // MODULE: Installed directly from nf-core/modules
 //
-include { CHOPPER                     } from '../modules/nf-core/chopper/main'
-include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
-include { FASTQC                      } from '../modules/nf-core/fastqc/main'
-include { MULTIQC                     } from '../modules/nf-core/multiqc/main'
-include { NANOPLOT                    } from '../modules/nf-core/nanoplot/main'
+include { CHOPPER                      } from '../modules/nf-core/chopper/main'
+include { CUSTOM_DUMPSOFTWAREVERSIONS  } from '../modules/nf-core/custom/dumpsoftwareversions/main'
+include { FASTQC as FASTQC_RAW         } from '../modules/nf-core/fastqc/main'
+include { FASTQC as FASTQC_TRIMMED     } from '../modules/nf-core/fastqc/main'
+include { MULTIQC                      } from '../modules/nf-core/multiqc/main'
+include { NANOPLOT                     } from '../modules/nf-core/nanoplot/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -79,25 +80,58 @@ workflow NANOQC {
     }
 
     //
-    // MODULE: FastQC
-    //
-    FASTQC(ch_input)   
-    ch_versions = ch_versions.mix(FASTQC.out.versions.first())
-
-    //
-    // MODULE: NanoPlot
-    //
-    NANOPLOT(ch_input)
-    ch_versions = ch_versions.mix(NANOPLOT.out.versions.first())
-
-    //
     // MODULE: Porechop_ABI
     //
     if (!params.skip_porechop) {
         PORECHOP_ABI(ch_input)
+        ch_preprocessed_reads = PORECHOP_ABI.out.reads
         ch_versions = ch_versions.mix(PORECHOP_ABI.out.versions.first())
+    } else {
+        ch_preprocessed_reads = ch_input
     }
- 
+
+    //
+    // MODULE: chopper
+    //
+    if (!params.skip_chopper) {
+        if (!params.skip_porechop) {
+            CHOPPER(ch_preprocessed_reads)
+            ch_processed_reads = CHOPPER.out.fastq
+        } else {
+            CHOPPER(ch_input)
+            ch_processed_reads = CHOPPER.out.fastq
+        }
+        ch_versions = ch_versions.mix(CHOPPER.out.versions.first())
+    } else {
+        if (!params.skip_porechop) {
+            ch_processed_reads = PORECHOP_ABI.out.reads
+        } else {
+            ch_processed_reads = ch_input
+        }
+    }
+
+    //
+    // MODULE: FastQC
+    //
+    if (!params.skip_chopper) {
+        FASTQC_RAW(ch_input)
+        FASTQC_TRIMMED(ch_processed_reads)
+        ch_versions = ch_versions.mix(FASTQC_RAW.out.versions.first(), FASTQC_TRIMMED.out.versions.first())
+    } else {
+        FASTQC_RAW(ch_input)
+        ch_versions = ch_versions.mix(FASTQC_RAW.out.versions.first())
+    }
+
+    //
+    // MODULE: NanoPlot
+    //
+    if (!params.skip_chopper || !params.skip_porechop) {
+        NANOPLOT(ch_processed_reads)
+    } else {
+        NANOPLOT(ch_input)
+    }
+    ch_versions = ch_versions.mix(NANOPLOT.out.versions.first())
+
     //
     // MODULE: CUSTOM_DUMPSOFTWAREVERSIONS
     //
@@ -119,12 +153,20 @@ workflow NANOQC {
     ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
-    ch_multiqc_files = ch_multiqc_files.mix(NANOPLOT.out.txt.collect{it[1]}.ifEmpty([]))
+
+    // FastQC
+    if (!params.skip_chopper) {
+        ch_multiqc_files = ch_multiqc_files.mix(FASTQC_RAW.out.zip.collect{it[1]}.ifEmpty([]))
+        ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMMED.out.zip.collect{it[1]}.ifEmpty([]))
+    } else {
+        ch_multiqc_files = ch_multiqc_files.mix(FASTQC_RAW.out.zip.collect{it[1]}.ifEmpty([]))
+    }
+
+    // Porechop_ABI
     if (!params.skip_porechop) {
         ch_multiqc_files = ch_multiqc_files.mix(PORECHOP_ABI.out.log.collect{it[1]}.ifEmpty([]))
     }
-    // TODO: Add process outputs for MultiQC input here
+    // TODO: Add more process outputs for MultiQC input here
 
     MULTIQC (
         ch_multiqc_files.collect(),

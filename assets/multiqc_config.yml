@@ -13,8 +13,20 @@ export_plots: true
 
 data_format: "tsv"
 
-## Module order
-top_modules:
-  - "fastqc"
-  - "nanostat"
-  - "porechop"
+module_order:
+  - fastqc:
+      name: "FastQC (trimmed)"
+      anchor: "fastqc_trimmed"
+      info: "This section of the report shows FastQC results after quality/length-based trimming with chopper."
+      path_filters:
+        - "**/*_trim_fastqc.zip"
+  - fastqc:
+      name: "FastQC (raw)"
+      anchor: "fastqc_raw"
+      info: "This section of the report shows FastQC results for the input reads."
+      path_filters:
+        - "**/*_raw_fastqc.zip"
+      target: ""
+  - porechop:
+      anchor: "porechop"
+      info: "This section of the report shows Porechop_ABI results for adapter trimming."

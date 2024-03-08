@@ -113,7 +113,7 @@ workflow NANOQC {
     //
     // MODULE: FastQC
     //
-    if (!params.skip_chopper) {
+    if (!params.skip_chopper || !params.skip_porechop) {
         FASTQC_RAW(ch_input)
         FASTQC_TRIMMED(ch_processed_reads)
         ch_versions = ch_versions.mix(FASTQC_RAW.out.versions.first(), FASTQC_TRIMMED.out.versions.first())
@@ -155,7 +155,7 @@ workflow NANOQC {
     ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
 
     // FastQC
-    if (!params.skip_chopper) {
+    if (!params.skip_chopper || !params.skip_porechop) {
         ch_multiqc_files = ch_multiqc_files.mix(FASTQC_RAW.out.zip.collect{it[1]}.ifEmpty([]))
         ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMMED.out.zip.collect{it[1]}.ifEmpty([]))
     } else {

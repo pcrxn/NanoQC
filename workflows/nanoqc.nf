@@ -52,7 +52,8 @@ include { CUSTOM_DUMPSOFTWAREVERSIONS  } from '../modules/nf-core/custom/dumpsof
 include { FASTQC as FASTQC_RAW         } from '../modules/nf-core/fastqc/main'
 include { FASTQC as FASTQC_TRIMMED     } from '../modules/nf-core/fastqc/main'
 include { MULTIQC                      } from '../modules/nf-core/multiqc/main'
-include { NANOPLOT                     } from '../modules/nf-core/nanoplot/main'
+include { NANOPLOT as NANOPLOT_RAW     } from '../modules/nf-core/nanoplot/main'
+include { NANOPLOT as NANOPLOT_TRIMMED } from '../modules/nf-core/nanoplot/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -126,9 +127,12 @@ workflow NANOQC {
     // MODULE: NanoPlot
     //
     if (!params.skip_chopper || !params.skip_porechop) {
-        NANOPLOT(ch_processed_reads)
+        NANOPLOT_RAW(ch_input)
+        NANOPLOT_TRIMMED(ch_processed_reads)
+        ch_versions = ch_versions.mix(NANOPLOT_RAW.out.versions.first(), NANOPLOT_TRIMMED.out.versions.first())
     } else {
-        NANOPLOT(ch_input)
+        NANOPLOT_RAW(ch_input)
+        ch_versions = ch_versions.mix(NANOPLOT_RAW.out.versions.first())
     }
     ch_versions = ch_versions.mix(NANOPLOT.out.versions.first())
 
